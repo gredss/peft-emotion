@@ -1,122 +1,65 @@
 # PEFT Evaluation for Indonesian Sentiment and Emotion Classification
 
-This repository contains the data preparation and preprocessing pipeline for evaluating **Parameter-Efficient Fine-Tuning (PEFT)** methods on Indonesian NLP tasks using transformer-based models such as **IndoBERT** and **IndoBERTweet**. The primary goal is to assess how PEFT strategies (LoRA, QLoRA, Prefix Tuning, and Full Fine-Tuning) perform in low-resource and domain-specific contexts.
+This repository contains the data preparation and preprocessing pipeline for evaluating **Parameter-Efficient Fine-Tuning (PEFT)** methods on Indonesian NLP tasks using transformer-based model such as  **IndoBERTweet**. The primary goal is to assess how PEFT strategies (LoRA, QLoRA, Prefix Tuning, and Full Fine-Tuning) perform in low-resource and domain-specific contexts.
 
 ---
 
-## Dataset Overview
+## Dataset Source
 
 **Source:** [PRDECT-ID Dataset (Product Review Dataset for Emotion and Customer Text – Indonesia)](https://doi.org/10.1016/j.dib.2022.108554)
 
-**Size:** 5,400 samples (after deduplication: 5,393)
+# **Project: Benchmarking PEFT Strategies for Indonesian Emotion Classification**
 
-**Domains:** E-commerce product reviews across multiple categories
-
-**Main Fields:**
-
-* `Category` – product category (e.g., Computers and Laptops)
-* `Product Name` – item name
-* `Customer Review` – original Indonesian review text
-* `Sentiment` – binary label (`Positive` or `Negative`)
-* `Emotion` – fine-grained label (`Happy`, `Sadness`, `Fear`, `Love`, `Anger`)
-* `Customer Rating` – numeric rating (1–5)
-* Additional numeric features: `Price`, `Overall Rating`, `Number Sold`, `Total Review`
+This repository contains the implementation and empirical evaluation of various **Parameter-Efficient Fine-Tuning (PEFT)** strategies applied to **IndoBERTweet** for emotion classification in the Indonesian e-commerce domain. The study focuses on the trade-offs between predictive performance, memory consumption, and training latency.
 
 ---
 
-## Preprocessing and Feature Engineering
+## **Project Overview**
 
-### 1. Text Normalization
+Adapting Large Language Models (LLMs) for localized, noisy, and informal datasets—such as Indonesian consumer feedback—often poses a significant challenge due to hardware constraints. This project provides a systematic comparison between **Full Fine-Tuning (Full FT)**, **LoRA**, **QLoRA**, and **Prefix Tuning** to identify the optimal configuration for resource-constrained environments.
 
-A normalization function was applied to clean and unify review text:
+### **Key Findings**
 
-```python
-def normalize_text(s):
-    s = str(s).lower()
-    s = re.sub(r"http\S+|www\S+|https\S+", " <URL> ", s)
-    s = re.sub(r"@\w+", " <USER> ", s)
-    s = re.sub(r"\s+", " ", s).strip()
-    return s
-```
-
-This step standardizes casing, replaces links/usernames, and trims redundant spaces.
+* **Optimal Performance**: IndoBERTweet with **LoRA** on raw datasets achieved a peak **F1-macro of 0.676**.
+* **Memory Efficiency**: LoRA reduced GPU memory overhead by **42%** (1.23 GB) compared to Full FT (2.16 GB).
+* **Parameter Efficiency**: LoRA achieved competitive results while updating only **2.68M parameters**, a **>97% reduction** from the 110M parameters in Full FT.
+* **Quantization Trade-off**: **QLoRA** emerged as the fastest transformer method (55.03s per epoch) but suffered an **89% performance degradation**.
+* **Calibration**: All models maintained high reliability with an **Expected Calibration Error (ECE) of 0.036**.
 
 ---
 
-### 2. Stopword Removal
+## **Experimental Architecture**
 
-To examine the role of linguistic simplification in low-resource fine-tuning, an Indonesian stopword list was applied:
+### **Model Configurations**
 
-```python
-stopwords = {"dan","yang","di","ke","dari","untuk","pada","dengan","nya","ini","itu",
-             "ya","sih","lah","nih","aja","udah","karena","jadi","ada","sebagai","oleh",
-             "atau","lebih","kurang","meng","ter","per","se","kan"}
-```
+| Strategy | Description | Trainable Params |
+| --- | --- | --- |
+| **Full FT** | Updates all model weights; serves as the performance baseline. | 110,562,053 |
+| **LoRA** | Injects low-rank trainable matrices into transformer layers. | 2,682,629 |
+| **Prefix Tuning** | Prepends trainable task-specific vectors to hidden states. | 92,544 |
+| **QLoRA** | 4-bit quantization of the backbone model with LoRA adapters. | 110,562,053 |
 
-A variant without stopword removal was also preserved for **controlled experiments**.
+### **Evaluation Metrics**
 
----
-
-### 3. Dataset Variants
-
-| Filename                                 | Description                                                                                                                  |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `product_reviews_with_norm.csv`          | Normalized text with stopwords retained (base version for all PEFT models)                                                   |
-| `product_reviews_canonical_text.csv`     | Canonical subset with essential columns (`Category`, `Product Name`, `text_norm`, `Sentiment`, `Emotion`, `Customer Rating`) |
-| `product_reviews_no_stop.csv`            | Normalized text with stopwords removed                                                                                       |
-| `product_reviews_balanced.csv`           | Full dataset after sentiment class balancing                                                                                 |
-| `product_reviews_balanced_canonical.csv` | Canonical balanced variant (stopwords retained)                                                                              |
-| `product_reviews_balanced_no_stop.csv`   | Canonical balanced variant (stopwords removed)                                                                               |
+1. **Predictive Quality**: F1-Macro Score and Accuracy.
+2. **Hardware Efficiency**: Peak GPU VRAM (MB) and Training Wall Time (s).
+3. **Reliability**: Expected Calibration Error (ECE).
+4. **Pareto Frontier**: A multi-criteria analysis of the Performance-Efficiency trade-off.
 
 ---
 
-## Class Balancing
+## **Technical Implementation**
 
-Before balancing:
+### **Dataset Preprocessing**
 
-```
-Happy      1768
-Sadness    1201
-Fear        918
-Love        808
-Anger       698
-```
+The study utilizes two variants of Indonesian e-commerce data:
 
-After random oversampling:
-
-```
-Fear       1768
-Anger      1768
-Happy      1768
-Love       1768
-Sadness    1768
-```
-
-**Rationale:**
-Balancing mitigates class bias, ensuring fairer comparison of PEFT methods. Although oversampling may duplicate certain samples, it is appropriate for low-resource experiments where stability of evaluation metrics (especially F1-macro) is prioritized over large-scale generalization.
+* **Raw**: Retains original linguistic features, emojis, and informal punctuation.
+* **Normalized**: Standardized text following Indonesian formal rules.
+Results indicate that **Raw data** provides richer sentiment signals for LoRA-based models.
 
 ---
 
-## 📊 Key Observations from EDA
+## **Citation and Acknowledgments**
 
-| Feature                        | Observation                                                                                                                                     |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Price**                      | Highly skewed (mean ≈ 238k, max = 15.3M). Consider `log1p(Price)` if used as numeric feature.                                                   |
-| **Overall Rating**             | Very narrow range (4.1–5.0), typical positive bias. Limited predictive utility.                                                                 |
-| **Number Sold / Total Review** | Broad spread, likely correlated with product popularity.                                                                                        |
-| **Customer Rating**            | Bimodal distribution around 1 and 5, strong sentiment polarity.                                                                                |
-| **text_len**                   | Median 12 words, long-tailed up to 184. Max token length for modeling ≈ 64.                                                                     |
-| **Emotion**                    | “Happy” dominates (1770 samples), followed by “Sadness” and “Fear”. |
-
----
-
-## Experimental Plan
-
-1. **Fine-tune multiple PEFT strategies** (LoRA, QLoRA, Prefix Tuning, Full Fine-Tuning) using IndoBERT and IndoBERTweet.
-2. **Evaluate efficiency metrics:** GPU memory, fine-tuning time, parameter count.
-3. **Assess generalization** across multiple datasets (`with_norm`, `no_stop`, `balanced`).
-4. **Report evidence-based guidance** on whether text normalization and stopword removal impact PEFT effectiveness in low-resource Indonesian NLP.
-
----
-
-To be continued..
+This research was supported by **Bina Nusantara University**.
