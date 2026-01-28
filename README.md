@@ -8,15 +8,7 @@ This repository contains the data preparation and preprocessing pipeline for eva
 
 **Source:** [PRDECT-ID Dataset (Product Review Dataset for Emotion and Customer Text – Indonesia)](https://doi.org/10.1016/j.dib.2022.108554)
 
-# **Project: Benchmarking PEFT Strategies for Indonesian Emotion Classification**
-
-This repository contains the implementation and empirical evaluation of various **Parameter-Efficient Fine-Tuning (PEFT)** strategies applied to **IndoBERTweet** for emotion classification in the Indonesian e-commerce domain. The study focuses on the trade-offs between predictive performance, memory consumption, and training latency.
-
 ---
-
-## **Project Overview**
-
-Adapting Large Language Models (LLMs) for localized, noisy, and informal datasets—such as Indonesian consumer feedback—often poses a significant challenge due to hardware constraints. This project provides a systematic comparison between **Full Fine-Tuning (Full FT)**, **LoRA**, **QLoRA**, and **Prefix Tuning** to identify the optimal configuration for resource-constrained environments.
 
 ### **Key Findings**
 
