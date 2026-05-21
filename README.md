@@ -1,4 +1,7 @@
 # PEFT Evaluation for Indonesian Emotion Classification
+> 📄 Accepted at [
+INTERNATIONAL ELECTRONICS SYMPOSIUM 2026](https://ies.pens.ac.id/2026/)  
+> IEEE Paper: **"Evaluating Parameter-Efficient Fine-Tuning Methods for Indonesian Emotion Classification"**
 
 This repository contains the data preparation and preprocessing pipeline for evaluating **Parameter-Efficient Fine-Tuning (PEFT)** methods on Indonesian NLP tasks using transformer-based model such as  **IndoBERTweet**. The primary goal is to assess how PEFT strategies (LoRA, QLoRA, Prefix Tuning, and Full Fine-Tuning) perform in low-resource and domain-specific contexts.
 
